@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Insert Name</title>
+</head>
+<body>
+    <h2>Insert Name into Oracle Database</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Insert</button>
+    </form>
+
+    <p style="color:green;">{{ msg }}</p>
+</body>
+</html>
