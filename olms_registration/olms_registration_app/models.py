@@ -41,6 +41,7 @@ class Branch(models.Model):
         managed = False
 
 
+
 class Country(models.Model):
     id = models.IntegerField(primary_key=True)
     name_country = models.CharField(max_length=200)
@@ -56,6 +57,15 @@ class BarAssociation(models.Model):
 
     class Meta:
         db_table = "TBL_MEMBER_OF_BAR_ASSOCIATION"
+        managed = False
+
+class TypeOfApplication(models.Model):
+    id = models.IntegerField(primary_key=True)
+    status = models.CharField(max_length=200)
+    application_type = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = "TBL_TYPE_OF_APPLICATION"
         managed = False
 
 class Lawyer(models.Model):

@@ -1,0 +1,27 @@
+SYS_CONN
+olms_db_orcl	SYS@//localhost:1521/ORCL
+
+armavi
+
+CREATE USER django_user IDENTIFIED BY django_pass;
+
+GRANT CREATE SESSION TO django_user;
+GRANT CONNECT, RESOURCE TO django_user;
+
+CREATE USER django_user IDENTIFIED BY django_pass;
+
+Username: django_user
+
+Password: django_pass
+
+Hostname: localhost
+
+Port: 1521
+
+Service Name: ORCLPDB 
+
+Role: default
+
+DJANGO_USER@ORCLPDB
+
+DJANGO_USER

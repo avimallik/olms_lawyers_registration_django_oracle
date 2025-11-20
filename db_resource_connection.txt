@@ -1,0 +1,4 @@
+username: django_user
+password: django_pass
+hostname: localhost
+service_name: ORCLPDB
