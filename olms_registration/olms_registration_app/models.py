@@ -41,7 +41,6 @@ class Branch(models.Model):
         managed = False
 
 
-
 class Country(models.Model):
     id = models.IntegerField(primary_key=True)
     name_country = models.CharField(max_length=200)
@@ -49,7 +48,6 @@ class Country(models.Model):
     class Meta:
         db_table = "TBL_COUNTRY"
         managed = False
-
 
 class BarAssociation(models.Model):
     id = models.IntegerField(primary_key=True)
