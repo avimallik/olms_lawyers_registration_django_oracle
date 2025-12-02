@@ -16,6 +16,7 @@ urlpatterns = [
     path('get_division/', views.get_division, name="get_division"),
     path('get_country/', views.get_country, name="get_country"),
     path('get_member_bar_association/', views.get_member_bar_association, name="get_member_bar_association"),
-    path('get_type_of_application/', views.get_type_of_application, name='get_type_of_application')
+    path('get_type_of_application/', views.get_type_of_application, name='get_type_of_application'),
+    path('get_type_of_post/', views.get_type_of_post, name='get_type_of_post'),
     # path('get_country/<int:id>/', views.get, name='get_areas'),
 ]

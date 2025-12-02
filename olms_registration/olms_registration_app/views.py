@@ -4,7 +4,7 @@ from .forms import TestForm
 from .models import TBL_TEST
 from django.db import connection
 from .models import Lawyer
-from .models import Division, Country, BarAssociation, Area, Branch, Lawyer, TypeOfApplication
+from .models import Division, Country, BarAssociation, Area, Branch, Lawyer, TypeOfApplication, TypeOfPost
 from django.http import JsonResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
@@ -23,8 +23,8 @@ def insert_name(request):
 
     return render(request, "insert.html", {"form": form, "msg": msg})
 
-@csrf_exempt
-def api_register(request):
+# @csrf_exempt
+# def api_register(request):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "POST method required"}, status=400)
 
@@ -102,6 +102,7 @@ def api_register(request):
 
             "type_of_application": body.get("type_of_application"),
             "application_session": body.get("application_session"),
+            "type_of_post": body.get("type_of_post"),
         }
 
         # --------- INSERT INTO DATABASE ---------
@@ -131,7 +132,8 @@ def api_register(request):
                     CODICE_FISCALE,
                     DOCUMENT_HO_INWARD_NO,
                     TYPE_OF_APPLICATION,
-                    APPLICATION_SESSION
+                    APPLICATION_SESSION,
+                    TYPE_OF_POST
                 )
                 VALUES (
                     %(branch_name)s, %(branch_code)s,
@@ -170,7 +172,8 @@ def api_register(request):
                     %(document_ho_inward_no)s,
 
                     %(type_of_application)s,
-                    TO_DATE(%(application_session)s, 'YYYY-MM-DD')
+                    TO_DATE(%(application_session)s, 'YYYY-MM-DD'),
+                    %(type_of_post)s
                 )
             """, data)
 
@@ -205,90 +208,103 @@ def api_register(request):
 #         "application_type": application_type,
 #     })
 
-# def register(request):
-    print("TYPE_OF_APPLICATION =", request.POST.get("type_of_application"))
-    if request.method == "POST":
+@csrf_exempt
+def api_register(request):
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "POST required"})
 
+    try:
+        body = request.POST
+
+        photo = request.FILES.get("photo_filename")
+
+        photo_path = ""
+        if photo:
+            from django.core.files.storage import FileSystemStorage
+            fs = FileSystemStorage(location="media/uploads/")
+            filename = fs.save(photo.name, photo)
+            photo_path = fs.url(filename)
+
+        # IDs
+        division_id = body.get("division_id")
+        area_id = body.get("area_id")
+        branch_id = body.get("branch_id")
+
+        div = Division.objects.get(division_id=division_id)
+        area = Area.objects.get(area_id=area_id)
+        branch = Branch.objects.get(branch_id=branch_id)
+
+        # Build data dict
         data = {
+            "branch_name": branch.branch_name,
+            "branch_code": branch.branch_code,
+            "area_name": area.area_name,
+            "area_code": area.area_code,
+            "division_name": div.division_name,
+            "division_code": div.division_code,
 
-            "branch_name": request.POST.get("branch"),
-            "branch_code": request.POST.get("branch_code"),
+            "country": body.get("country"),
+            "name_english": body.get("name_english"),
+            "name_bangla": body.get("name_bangla"),
 
-            "area_name": request.POST.get("area"),
-            "area_code": request.POST.get("area_code"),
+            "bar_council_passing_year": body.get("bar_council_passing_year"),
+            "bar_council_certificate_no": body.get("bar_council_certificate_no"),
+            "year_permission_practice_high_court": body.get("year_permission_practice_high_court"),
 
-            "division_name": request.POST.get("division"),
-            "division_code": request.POST.get("division_code"),
+            "bar_association_membership_no": body.get("bar_association_membership_no"),
+            "member_of_bar_association": body.get("member_of_bar_association"),
 
-            "country": request.POST.get("country"),
+            "bar_at_law": body.get("bar_at_law"),
 
-            "name_english": request.POST.get("name_english"),
-            "name_bangla": request.POST.get("name_bangla"),
+            "address_present_english": body.get("address_present_english"),
+            "address_present_bangla": body.get("address_present_bangla"),
 
-            "bar_council_passing_year": request.POST.get("bar_council_passing_year"),
-            "bar_council_certificate_no": request.POST.get("bar_council_certificate_no"),
-            "year_permission_practice_high_court": request.POST.get("year_permission_practice_high_court"),
-            "year_permission_practice_appellate": request.POST.get("year_permission_practice_appellate"),
+            "address_permanent_english": body.get("address_permanent_english"),
+            "address_permanent_bangla": body.get("address_permanent_bangla"),
 
-            "bar_association_membership_no": request.POST.get("bar_association_membership_no"),
-            "member_of_bar_association": request.POST.get("member_of_bar_association"),
+            "address_court_chamber_english": body.get("address_court_chamber_english"),
+            "address_court_chamber_bangla": body.get("address_court_chamber_bangla"),
 
-            "bar_at_law": request.POST.get("bar_at_law"),
+            "address_personal_chamber_english": body.get("address_personal_chamber_english"),
+            "address_personal_chamber_bangla": body.get("address_personal_chamber_bangla"),
 
-            "address_present_english": request.POST.get("address_present_english"),
-            "address_present_bangla": request.POST.get("address_present_bangla"),
+            "email": body.get("email"),
+            "mobile": body.get("mobile"),
+            "nid": body.get("nid"),
 
-            "address_permanent_english": request.POST.get("address_permanent_english"),
-            "address_permanent_bangla": request.POST.get("address_permanent_bangla"),
+            "experiences": body.get("experiences"),
+            "other_academic_qualifications": body.get("other_academic_qualifications"),
 
-            "address_court_chamber_english": request.POST.get("address_court_chamber_english"),
-            "address_court_chamber_bangla": request.POST.get("address_court_chamber_bangla"),
+            "passport_no": body.get("passport_no"),
+            "passport_expiry_date": body.get("passport_expiry_date"),
 
-            "address_personal_chamber_english": request.POST.get("address_personal_chamber_english"),
-            "address_personal_chamber_bangla": request.POST.get("address_personal_chamber_bangla"),
+            "overseas_national_id": body.get("overseas_national_id"),
+            "diploma_or_professional_degree": body.get("diploma_or_professional_degree"),
 
-            "email": request.POST.get("email"),
-            "mobile": request.POST.get("mobile"),
-            "nid": request.POST.get("nid"),
+            "other_training": body.get("other_training"),
+            "date_of_birth": body.get("date_of_birth"),
 
-            "experiences": request.POST.get("experiences"),
-            "other_academic_qualifications": request.POST.get("other_academic_qualifications"),
+            "highest_education": body.get("highest_education"),
+            "codice_fiscale": body.get("codice_fiscale"),
+            "document_ho_inward_no": body.get("document_ho_inward_no"),
 
-            "passport_no": request.POST.get("passport_no"),
-            "passport_expiry_date": request.POST.get("passport_expiry_date"),
+            "type_of_application": body.get("type_of_application"),
+            "application_session": body.get("application_session"),
+            "type_of_post": body.get("type_of_post"),
 
-            "overseas_national_id": request.POST.get("overseas_national_id"),
-            "diploma_or_professional_degree": request.POST.get("diploma_or_professional_degree"),
-
-            "other_training": request.POST.get("other_training"),
-            "date_of_birth": request.POST.get("date_of_birth"),
-
-            "highest_education": request.POST.get("highest_education"),
-            "photo_filename": request.POST.get("photo_filename"),
-
-            "codice_fiscale": request.POST.get("codice_fiscale"),
-
-            "document_branch_inward_no": request.POST.get("document_branch_inward_no"),
-            "document_ho_inward_no": request.POST.get("document_ho_inward_no"),
-
-            "type_of_application": request.POST.get("type_of_application"),
-            "application_session": request.POST.get("application_session"),
+            "photo_filename": photo_path,  # FIXED
         }
 
+        # Insert same as before...
         with connection.cursor() as cur:
             cur.execute("""
                 INSERT INTO TBL_LAYWER_REGISTER (
-
-                    BRANCH_NAME, BRANCH_CODE,
-                    AREA_NAME, AREA_CODE,
-                    DIVISION_NAME, DIVISION_CODE,
-                    COUNTRY,
+                    BRANCH_NAME, BRANCH_CODE, AREA_NAME, AREA_CODE,
+                    DIVISION_NAME, DIVISION_CODE, COUNTRY,
                     NAME_ENGLISH, NAME_BANGLA,
                     BAR_COUNCIL_PASSING_YEAR, BAR_COUNCIL_CERTIFICATE_NO,
                     YEAR_PERMISSION_PRACTICE_HIGH_COURT,
-                    YEAR_PERMISSION_PRACTICE_APPELLATE,
-                    BAR_ASSOCIATION_MEMBERSHIP_NO,
-                    MEMBER_OF_BAR_ASSOCIATION,
+                    BAR_ASSOCIATION_MEMBERSHIP_NO, MEMBER_OF_BAR_ASSOCIATION,
                     BAR_AT_LAW,
                     ADDRESS_PRESENT_ENGLISH, ADDRESS_PRESENT_BANGLA,
                     ADDRESS_PERMANENT_ENGLISH, ADDRESS_PERMANENT_BANGLA,
@@ -299,22 +315,17 @@ def api_register(request):
                     PASSPORT_NO, PASSPORT_EXPIRY_DATE,
                     OVERSEAS_NATIONAL_ID, DIPLOMA_OR_PROFESSIONAL_DEGREE,
                     OTHER_TRAINING, DATE_OF_BIRTH,
-                    HIGHEST_EDUCATION, PHOTO_FILENAME,
-                    CODICE_FISCALE, DOCUMENT_BRANCH_INWARD_NO,
-                    DOCUMENT_HO_INWARD_NO,
-                    TYPE_OF_APPLICATION, APPLICATION_SESSION
+                    HIGHEST_EDUCATION, CODICE_FISCALE, DOCUMENT_HO_INWARD_NO,
+                    TYPE_OF_APPLICATION, APPLICATION_SESSION,
+                    TYPE_OF_POST, PHOTO_FILENAME
                 )
                 VALUES (
-                    :branch_name, :branch_code,
-                    :area_name, :area_code,
-                    :division_name, :division_code,
-                    :country,
+                    :branch_name, :branch_code, :area_name, :area_code,
+                    :division_name, :division_code, :country,
                     :name_english, :name_bangla,
                     :bar_council_passing_year, :bar_council_certificate_no,
                     :year_permission_practice_high_court,
-                    :year_permission_practice_appellate,
-                    :bar_association_membership_no,
-                    :member_of_bar_association,
+                    :bar_association_membership_no, :member_of_bar_association,
                     :bar_at_law,
                     :address_present_english, :address_present_bangla,
                     :address_permanent_english, :address_permanent_bangla,
@@ -322,33 +333,22 @@ def api_register(request):
                     :address_personal_chamber_english, :address_personal_chamber_bangla,
                     :email, :mobile, :nid,
                     :experiences, :other_academic_qualifications,
-                    :passport_no, TO_DATE(:passport_expiry_date,'YYYY-MM-DD'),
+                    :passport_no,
+                    TO_DATE(:passport_expiry_date, 'YYYY-MM-DD'),
                     :overseas_national_id, :diploma_or_professional_degree,
-                    :other_training, TO_DATE(:date_of_birth,'YYYY-MM-DD'),
-                    :highest_education, :photo_filename,
-                    :codice_fiscale, :document_branch_inward_no,
-                    :document_ho_inward_no,
-                    :type_of_application, TO_DATE(:application_session,'YYYY-MM-DD')
+                    :other_training,
+                    TO_DATE(:date_of_birth, 'YYYY-MM-DD'),
+                    :highest_education, :codice_fiscale, :document_ho_inward_no,
+                    :type_of_application,
+                    TO_DATE(:application_session, 'YYYY-MM-DD'),
+                    :type_of_post, :photo_filename
                 )
             """, data)
 
-        messages.success(request, "Registration Completed Successfully!")
-        return redirect("register")
+        return JsonResponse({"success": True})
 
-
-    # GET request → dropdown data load
-    divisions = Division.objects.all()
-    countries = Country.objects.all()
-    bar_associations = BarAssociation.objects.all()
-    application_type = TypeOfApplication.objects.all()
-    
-
-    return render(request, "register.html", {
-        "divisions": divisions,
-        "countries": countries,
-        "bar_associations": bar_associations,
-        "application_type": application_type
-    })
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
 
 def register(request):
 
@@ -362,6 +362,15 @@ def register(request):
         div = Division.objects.get(division_id=division_id)
         area = Area.objects.get(area_id=area_id)
         branch = Branch.objects.get(branch_id=branch_id)
+
+        photo = request.FILES.get("photo")
+        photo_path = ""
+
+        if photo:
+            from django.core.files.storage import FileSystemStorage
+            fs = FileSystemStorage()
+            filename = fs.save(photo.name, photo)
+            photo_path = fs.url(filename)
 
         data = {
             "branch_name": branch.branch_name,
@@ -423,6 +432,8 @@ def register(request):
 
             "type_of_application": request.POST.get("type_of_application"),
             "application_session": request.POST.get("application_session"),
+            "type_of_post": request.POST.get("type_of_post"),
+            "photo_filename": photo_path,
         }
 
         with connection.cursor() as cur:
@@ -461,7 +472,7 @@ def register(request):
                     CODICE_FISCALE,
                     DOCUMENT_HO_INWARD_NO,
 
-                    TYPE_OF_APPLICATION, APPLICATION_SESSION
+                    TYPE_OF_APPLICATION, APPLICATION_SESSION, TYPE_OF_POST, PHOTO_FILENAME
                 )
                 VALUES (
                     :branch_name, :branch_code,
@@ -478,16 +489,23 @@ def register(request):
                     :address_permanent_english, :address_permanent_bangla,
                     :address_court_chamber_english, :address_court_chamber_bangla,
                     :address_personal_chamber_english, :address_personal_chamber_bangla,
-                    :email, :mobile, :nid,
+                    :email, 
+                    :mobile, 
+                    :nid,
                     :experiences, :other_academic_qualifications,
-                    :passport_no, TO_DATE(:passport_expiry_date, 'YYYY-MM-DD'),
-                    :overseas_national_id, :diploma_or_professional_degree,
-                    :other_training, TO_DATE(:date_of_birth, 'YYYY-MM-DD'),
+                    :passport_no, 
+                    TO_DATE(:passport_expiry_date, 'YYYY-MM-DD'),
+                    :overseas_national_id, 
+                    :diploma_or_professional_degree,
+                    :other_training, 
+                    TO_DATE(:date_of_birth, 'YYYY-MM-DD'),
                     :highest_education,
                     :codice_fiscale,
                     :document_ho_inward_no,
                     :type_of_application,
-                    TO_DATE(:application_session, 'YYYY-MM-DD')
+                    TO_DATE(:application_session, 'YYYY-MM-DD'),
+                    :type_of_post,
+                    :photo_filename
                 )
             """, data)
 
@@ -499,12 +517,14 @@ def register(request):
     countries = Country.objects.all()
     bar_associations = BarAssociation.objects.all()
     application_type = TypeOfApplication.objects.all()
+    post_type = TypeOfPost.objects.all()
 
     return render(request, "register.html", {
         "divisions": divisions,
         "countries": countries,
         "bar_associations": bar_associations,
-        "application_type": application_type
+        "application_type": application_type,
+        "post_type": post_type,
     })
 
 
@@ -567,6 +587,17 @@ def get_type_of_application(request):
     return JsonResponse({
         "status": "success",
         "type_of_application": list(typeOfApplication)
+    }, safe=False)
+
+def get_type_of_post(request):
+    typeOfPost = TypeOfPost.objects.all().values(
+        'id',
+        'post_type'
+    )
+
+    return JsonResponse({
+        'status': 'success',
+        'type_of_post': list(typeOfPost)
     }, safe=False)
 
 def get_areas(request, division_id):

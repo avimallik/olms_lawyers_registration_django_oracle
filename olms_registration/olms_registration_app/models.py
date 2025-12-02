@@ -66,6 +66,14 @@ class TypeOfApplication(models.Model):
         db_table = "TBL_TYPE_OF_APPLICATION"
         managed = False
 
+class TypeOfPost(models.Model):
+    id = models.IntegerField(primary_key=True)
+    post_type = models.CharField(max_length=200)
+
+    class Meta:
+        db_table = "TBL_TYPE_OF_POST"
+        managed = False
+
 class Lawyer(models.Model):
     id = models.AutoField(primary_key=True)
 

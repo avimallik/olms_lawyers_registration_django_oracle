@@ -259,6 +259,21 @@
                             </select>
                         </div>
 
+                        <div class="col-md-6">
+                            <label class="form-label">Type of Post</label>
+                            <select class="form-select" name="type_of_post" required>
+                                <option value="">--Select Post Type--</option>
+                                {% for k in post_type %}
+                                    <option value="{{ k.post_type }}">{{ k.post_type }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Upload Photo</label>
+                            <input type="file" class="form-control" name="photo" accept="image/*">
+                        </div>
+
                         <div class="col-12 mt-4">
                             <button type="submit" class="btn btn-primary w-100 py-2">Register</button>
                         </div>
