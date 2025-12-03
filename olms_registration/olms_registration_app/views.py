@@ -221,7 +221,7 @@ def api_register(request):
         photo_path = ""
         if photo:
             from django.core.files.storage import FileSystemStorage
-            fs = FileSystemStorage(location="media/uploads/")
+            fs = FileSystemStorage(location="media/")
             filename = fs.save(photo.name, photo)
             photo_path = fs.url(filename)
 
