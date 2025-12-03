@@ -2,6 +2,9 @@
 
 OLMIS (Online Lawyer Management Information System) is Django application designed to register the Lawyers and other applicants to the Janata Bank PLC. Built using Django (Python), Oracle Database, and Bootstrap.
 
+## 🏗️ Instruction video
+[![Watch the video](video-thumbnail.png)](https://drive.google.com/file/d/1qq1XheHXyOzYjqSc8q0V99oYfzCcOCBL/preview)
+
 ---
 
 ## 🚀 Features
@@ -55,9 +58,6 @@ OLMIS (Online Lawyer Management Information System) is Django application design
     - The app will run at [http://192.XXX.0.XXX:8000/]
 
 ---
-
-## 🏗️ Instruction video
-[![Watch the video](video-thumbnail.png)](https://drive.google.com/file/d/1qq1XheHXyOzYjqSc8q0V99oYfzCcOCBL/preview)
 
 
 
